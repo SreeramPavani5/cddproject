@@ -2,12 +2,12 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.8.7'   // Match with Maven tool name in Jenkins
-        jdk 'JDK 11'          // Match with JDK tool name in Jenkins
+        maven 'Maven 3.8.7'  // Must match the name configured in Jenkins
+        jdk 'JDK 11'         // Optional, if JDK configured
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
                 git 'https://github.com/SreeramPavani5/cddproject.git'
             }
@@ -15,7 +15,7 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'mvn clean compile'
+                sh 'mvn clean install'
             }
         }
 
@@ -30,19 +30,14 @@ pipeline {
                 sh 'mvn package'
             }
         }
-
-        stage('Archive Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-            }
-        }
     }
 
-   post {
-        always {
-            echo 'Pipeline finished.'
-            // Commented out to avoid error:
-            // junit 'target/surefire-reports/*.xml'
+    post {
+        success {
+            echo 'Maven pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
